@@ -44,6 +44,7 @@ func addEntry(w http.ResponseWriter, r *http.Request) {
 	}
 	entry := Entry{parsedSys, parsedDia, parsedPulse, int(time.Now().Unix())}
 	fmt.Fprintf(w, "Entry added test: %v", entry)
+	log.Print("Received http request.")
 }
 
 func main() {

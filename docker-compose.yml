@@ -1,0 +1,7 @@
+version: "3.4"
+
+services:
+  goapp:
+    image: bpw:latest
+    ports:
+      - "8080:8080"
