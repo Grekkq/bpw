@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/1Password/connect-sdk-go/connect"
 )
 
 type Entry struct {
@@ -50,6 +52,13 @@ func addEntry(w http.ResponseWriter, r *http.Request) {
 func main() {
 	t := time.Now()
 	fmt.Println(t.Unix())
+	client := connect.NewClient("<your_connect_host>", "<your_connect_token>")
+	item, err := client.GetItem("<item-uuid>", "<vault-uuid>")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Print(item)
+
 	http.HandleFunc("/addEntry/", addEntry)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

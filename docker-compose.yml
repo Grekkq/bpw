@@ -5,3 +5,28 @@ services:
     image: bpw:latest
     ports:
       - "8080:8080"
+
+  op-connect-api:
+    image: 1password/connect-api:latest
+    expose:
+      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
+    volumes:
+      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "data:/home/opuser/.op/data"
+    environment:
+      OP_LOG_LEVEL: warn
+
+  op-connect-sync:
+    image: 1password/connect-sync:latest
+    # ports:
+    #   - "8081:8080"
+    volumes:
+      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "data:/home/opuser/.op/data"
+    environment:
+      OP_LOG_LEVEL: warn
+
+volumes:
+  data:
