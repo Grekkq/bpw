@@ -2,18 +2,17 @@ version: "3.4"
 
 services:
   goapp:
-    image: bpw:latest
+    image: bpw
+    build: .
     ports:
       - "8080:8080"
 
   op-connect-api:
     image: 1password/connect-api:latest
     expose:
-      - "8080:8080"
-    # ports:
-    #   - "8080:8080"
+      - "8080"
     volumes:
-      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "/secrets/1password-credentials.json:/home/opuser/.op/1password-credentials.json"
       - "data:/home/opuser/.op/data"
     environment:
       OP_LOG_LEVEL: warn
@@ -23,7 +22,7 @@ services:
     # ports:
     #   - "8081:8080"
     volumes:
-      - "./1password-credentials.json:/home/opuser/.op/1password-credentials.json"
+      - "/secrets/1password-credentials.json:/home/opuser/.op/1password-credentials.json"
       - "data:/home/opuser/.op/data"
     environment:
       OP_LOG_LEVEL: warn
