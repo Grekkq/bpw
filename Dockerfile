@@ -2,15 +2,15 @@
 
 FROM golang:1.18
 
-WORKDIR /app
+WORKDIR /bpw
 COPY go.mod go.sum ./
 
 RUN go mod download && go mod verify
 
-COPY *.* ./
+COPY . .
 
-RUN go build -o /webapp
+RUN go build -v -o /usr/local/bin/bpw ./...
 
 EXPOSE 8080
 
-CMD [ "/webapp"]
+CMD ["bpw"]
