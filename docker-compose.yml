@@ -6,6 +6,11 @@ services:
     build: .
     ports:
       - "8080:8080"
+    secrets:
+      - 1password_http_address
+      - 1password_api_token
+      - 1password_vault_name
+      - db_connection_string_name
 
   op-connect-api:
     image: 1password/connect-api:latest
@@ -19,8 +24,8 @@ services:
 
   op-connect-sync:
     image: 1password/connect-sync:latest
-    # ports:
-    #   - "8081:8080"
+    ports:
+      - "8081:8080"
     volumes:
       - "/secrets/1password-credentials.json:/home/opuser/.op/1password-credentials.json"
       - "data:/home/opuser/.op/data"
@@ -29,3 +34,13 @@ services:
 
 volumes:
   data:
+
+secrets:
+  1password_http_address:
+    file: /secrets/1password_http_address
+  1password_api_token:
+    file: /secrets/1password_api_token
+  1password_vault_name:
+    file: /secrets/1password_vault_name
+  db_connection_string_name:
+    file: /secrets/db_connection_string_name
