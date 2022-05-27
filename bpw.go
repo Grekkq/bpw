@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -9,6 +11,8 @@ import (
 	"time"
 
 	"github.com/1Password/connect-sdk-go/connect"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
+	"github.com/google/uuid"
 	secrets "github.com/ijustfool/docker-secrets"
 )
 
@@ -48,6 +52,23 @@ func addEntry(w http.ResponseWriter, r *http.Request, dockerSecrets *secrets.Doc
 	}
 	entry := Entry{parsedSys, parsedDia, parsedPulse, int(time.Now().Unix())}
 
+	fmt.Fprintf(w, "Entry added test: %v", entry)
+}
+
+func handleAddEntry(w http.ResponseWriter, r *http.Request) {
+	defer handlePanic(w)
+	dockerSecrets, err := secrets.NewDockerSecrets("")
+	if err != nil {
+		log.Print("Failed to initialize docker secrets\n", err)
+		panic("Cannot access database.\n")
+	}
+	addEntry(w, r, dockerSecrets)
+
+	pushToDb(dockerSecrets)
+
+}
+
+func pushToDb(dockerSecrets *secrets.DockerSecrets) {
 	address, _ := dockerSecrets.Get("1password_http_address")
 	token, _ := dockerSecrets.Get("1password_api_token")
 	vaultName, _ := dockerSecrets.Get("1password_vault_name")
@@ -59,25 +80,44 @@ func addEntry(w http.ResponseWriter, r *http.Request, dockerSecrets *secrets.Doc
 		log.Print(err)
 		panic("Cannot access database.\n")
 	}
-
+	var dbKey, dbEndpoint, dbName, containerName string
 	for i := range item.Fields {
 		if item.Fields[i].Label == "password" {
-			log.Print(item.Fields[i].Value)
-			break
+			dbKey = item.Fields[i].Value
+		}
+		if item.Fields[i].Label == "endpointAddress" {
+			dbEndpoint = item.Fields[i].Value
+		}
+		if item.Fields[i].Label == "databaseName" {
+			dbName = item.Fields[i].Value
+		}
+		if item.Fields[i].Label == "containerName" {
+			containerName = item.Fields[i].Value
 		}
 	}
-
-	fmt.Fprintf(w, "Entry added test: %v", entry)
+	cred, err := azcosmos.NewKeyCredential(dbKey)
+	handle(err)
+	dbClient, err := azcosmos.NewClientWithKey(dbEndpoint, cred, nil)
+	handle(err)
+	database, err := dbClient.NewDatabase(dbName)
+	handle(err)
+	container, err := database.NewContainer(containerName)
+	handle(err)
+	log.Print(container)
+	id := uuid.NewString()
+	testItem := map[string]string{"id": id, "otherValue": "10"}
+	marshalled, err := json.Marshal(testItem)
+	handle(err)
+	pk := azcosmos.NewPartitionKeyString(id)
+	itemResponse, err := container.CreateItem(context.TODO(), pk, marshalled, nil)
+	handle(err)
+	log.Print(itemResponse)
 }
 
-func handleAddEntry(w http.ResponseWriter, r *http.Request) {
-	defer handlePanic(w)
-	dockerSecrets, err := secrets.NewDockerSecrets("askjdgaskhjd")
-	if err != nil {
-		log.Print("Failed to initialize docker secrets\n", err)
-		panic("Cannot access database.\n")
+func handle(e error) {
+	if e != nil {
+		log.Print(e)
 	}
-	addEntry(w, r, dockerSecrets)
 }
 
 func handlePanic(w http.ResponseWriter) {
