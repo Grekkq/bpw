@@ -28,27 +28,26 @@ func parseIntFromUrl(parameter_name string, r *http.Request) (int, error) {
 	return parsedValue, nil
 }
 
-func addEntry(w http.ResponseWriter, r *http.Request) {
+func addEntry(w http.ResponseWriter, r *http.Request, dockerSecrets *secrets.DockerSecrets) {
 	log.Print("Received http request.")
 	sys_parameter_name, dia_parameter_name, pulse_parameter_name := "sys", "dia", "pulse"
 	parsedSys, err := parseIntFromUrl(sys_parameter_name, r)
 	if err != nil {
-		log.Print(err)
-		panic(fmt.Sprintf("Please provide valid value for %v.", sys_parameter_name))
+		http.Error(w, fmt.Sprintf("Please provide valid value for %v.\n%v", sys_parameter_name, err), http.StatusUnprocessableEntity)
+		return
 	}
 	parsedDia, err := parseIntFromUrl(dia_parameter_name, r)
 	if err != nil {
-		log.Print(err)
-		panic(fmt.Sprintf("Please provide valid value for %v.", dia_parameter_name))
+		http.Error(w, fmt.Sprintf("Please provide valid value for %v.\n%v", dia_parameter_name, err), http.StatusUnprocessableEntity)
+		return
 	}
 	parsedPulse, err := parseIntFromUrl(pulse_parameter_name, r)
 	if err != nil {
-		log.Print(err)
-		panic(fmt.Sprintf("Please provide valid value for %v.", pulse_parameter_name))
+		http.Error(w, fmt.Sprintf("Please provide valid value for %v.\n%v", pulse_parameter_name, err), http.StatusUnprocessableEntity)
+		return
 	}
 	entry := Entry{parsedSys, parsedDia, parsedPulse, int(time.Now().Unix())}
 
-	dockerSecrets, _ := secrets.NewDockerSecrets("")
 	address, _ := dockerSecrets.Get("1password_http_address")
 	token, _ := dockerSecrets.Get("1password_api_token")
 	vaultName, _ := dockerSecrets.Get("1password_vault_name")
@@ -58,7 +57,7 @@ func addEntry(w http.ResponseWriter, r *http.Request) {
 	item, err := client.GetItemByTitle(dbConnectionStringName, vaultName)
 	if err != nil {
 		log.Print(err)
-		panic("Failed to connect to database.")
+		panic("Cannot access database.\n")
 	}
 
 	for i := range item.Fields {
@@ -73,12 +72,17 @@ func addEntry(w http.ResponseWriter, r *http.Request) {
 
 func handleAddEntry(w http.ResponseWriter, r *http.Request) {
 	defer handlePanic(w)
-	addEntry(w, r)
+	dockerSecrets, err := secrets.NewDockerSecrets("askjdgaskhjd")
+	if err != nil {
+		log.Print("Failed to initialize docker secrets\n", err)
+		panic("Cannot access database.\n")
+	}
+	addEntry(w, r, dockerSecrets)
 }
 
 func handlePanic(w http.ResponseWriter) {
 	if r := recover(); r != nil {
-		http.Error(w, fmt.Sprintf("%v\nServer encounter an error, please try again later.", r), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprint(r, "Server encounter an error, please try again later."), http.StatusInternalServerError)
 	}
 }
 
