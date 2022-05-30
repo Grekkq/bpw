@@ -14,7 +14,7 @@ func main() {
 	loadDockerSecrets(server)
 	loadDatabaseConnection(server)
 
-	http.Handle("/addEntry/", Handler{server, HandleAddEntry})
+	http.Handle("/addEntry/", Handler{server, EntryAddHandle})
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
