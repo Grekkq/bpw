@@ -14,13 +14,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func EntryAddHandle(env *Server, w http.ResponseWriter, r *http.Request) {
+func EntryAddHandle(server *Server, w http.ResponseWriter, r *http.Request) {
 	entry, err := parseEntry(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
-	err = pushToDb(entry, r.Context(), env.containerClient)
+	err = pushToDb(entry, r.Context(), server.containerClient)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
