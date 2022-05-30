@@ -44,15 +44,15 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type Entry struct {
-	id        string
-	sys       int
-	dia       int
-	pulse     int
-	timestamp int
+	Id        string `json:"id"`
+	Sys       int    `json:"sys"`
+	Dia       int    `json:"dia"`
+	Pulse     int    `json:"pulse"`
+	Timestamp int    `json:"timestamp"`
 }
 
-func parseIntFromUrl(parameter_name string, r *http.Request) (int, error) {
-	providedValue := r.URL.Query().Get(parameter_name)
+func parseIntFromUrl(parameterName string, r *http.Request) (int, error) {
+	providedValue := r.URL.Query().Get(parameterName)
 	parsedValue, err := strconv.Atoi(providedValue)
 	if err != nil {
 		return 0, errors.New(fmt.Sprint("Cannot parse:", providedValue))
@@ -61,21 +61,21 @@ func parseIntFromUrl(parameter_name string, r *http.Request) (int, error) {
 }
 
 func parseEntry(r *http.Request) (Entry, error) {
-	sys_parameter_name, dia_parameter_name, pulse_parameter_name := "sys", "dia", "pulse"
+	sysParameterName, diaParameterName, pulseParameterName := "sys", "dia", "pulse"
 
-	parsedSys, err := parseIntFromUrl(sys_parameter_name, r)
+	parsedSys, err := parseIntFromUrl(sysParameterName, r)
 	if err != nil {
-		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", sys_parameter_name, err)
+		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", sysParameterName, err)
 	}
 
-	parsedDia, err := parseIntFromUrl(dia_parameter_name, r)
+	parsedDia, err := parseIntFromUrl(diaParameterName, r)
 	if err != nil {
-		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", dia_parameter_name, err)
+		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", diaParameterName, err)
 	}
 
-	parsedPulse, err := parseIntFromUrl(pulse_parameter_name, r)
+	parsedPulse, err := parseIntFromUrl(pulseParameterName, r)
 	if err != nil {
-		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", pulse_parameter_name, err)
+		return Entry{}, fmt.Errorf("please provide valid value for %v\n%v", pulseParameterName, err)
 	}
 
 	return Entry{uuid.NewString(), parsedSys, parsedDia, parsedPulse, int(time.Now().Unix())}, nil
@@ -87,16 +87,25 @@ func HandleAddEntry(env *Server, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
-	log.Print(entry)
-	pushToDb(env.containerClient)
-
+	err = pushToDb(entry, env.containerClient)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, "Successfully saved entry in database ", entry)
 }
 
-func pushToDb(containerClient *azcosmos.ContainerClient) {
-	id := uuid.NewString()
-	testItem := map[string]string{"id": id, "otherValue": "10"}
-	marshalled, _ := json.Marshal(testItem)
-	pk := azcosmos.NewPartitionKeyString(id)
-	itemResponse, _ := containerClient.CreateItem(context.TODO(), pk, marshalled, nil)
-	log.Print(itemResponse)
+func pushToDb(entry Entry, containerClient *azcosmos.ContainerClient) error {
+	marshalled, err := json.Marshal(entry)
+	if err != nil {
+		log.Print("Cannot serialize provided object.\n", err)
+		return fmt.Errorf("cannot save in database\nPlease contact administrator")
+	}
+	pk := azcosmos.NewPartitionKeyString(entry.Id)
+	_, err = containerClient.CreateItem(context.TODO(), pk, marshalled, nil)
+	if err != nil {
+		log.Print("Failed saving data to db.\n", err)
+		return fmt.Errorf("cannot save in database\nPlease try again later")
+	}
+	return nil
 }
