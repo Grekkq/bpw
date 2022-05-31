@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 
 RUN go mod download && go mod verify
 
-COPY . .
+COPY api/. .
 
 RUN go build -v -o /usr/local/bin/bpw ./...
 
