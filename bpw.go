@@ -14,7 +14,8 @@ func main() {
 	loadDockerSecrets(server)
 	loadDatabaseConnection(server)
 
-	http.Handle("/addEntry/", Handler{server, EntryAddHandle})
+	http.Handle("/addEntry", Handler{server, EntryAddHandle})
+	http.Handle("/listEntries", Handler{server, ListEntriesHandle})
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -39,8 +40,12 @@ func getOnePassSecrets(secrets *OnePass) DatabaseDetails {
 			dbDetails.dbName = item.Fields[i].Value
 			continue
 		}
-		if item.Fields[i].Label == "containerName" {
-			dbDetails.containerName = item.Fields[i].Value
+		if item.Fields[i].Label == "usersContainerName" {
+			dbDetails.users = item.Fields[i].Value
+			continue
+		}
+		if item.Fields[i].Label == "measurementsContainerName" {
+			dbDetails.measurements = item.Fields[i].Value
 			continue
 		}
 	}
@@ -66,13 +71,19 @@ func loadDatabaseConnection(server *Server) {
 		log.Panic("Failed to get cosmos database\n", err)
 	}
 
-	container, err := database.NewContainer(dbDetails.containerName)
+	users, err := database.NewContainer(dbDetails.users)
 	if err != nil {
-		log.Panic("Failed to get cosmos container\n", err)
+		log.Panic("Failed to get users cosmos container\n", err)
+	}
+
+	measurements, err := database.NewContainer(dbDetails.measurements)
+	if err != nil {
+		log.Panic("Failed to get measurements cosmos container\n", err)
 	}
 
 	server.databaseClient = database
-	server.containerClient = container
+	server.users = users
+	server.measurements = measurements
 }
 
 func loadDockerSecrets(env *Server) {

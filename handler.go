@@ -7,16 +7,18 @@ import (
 )
 
 type Server struct {
-	onePass         *OnePass
-	databaseClient  *azcosmos.DatabaseClient
-	containerClient *azcosmos.ContainerClient
+	onePass        *OnePass
+	databaseClient *azcosmos.DatabaseClient
+	users          *azcosmos.ContainerClient
+	measurements   *azcosmos.ContainerClient
 }
 
 type DatabaseDetails struct {
-	endpoint      string
-	key           string
-	dbName        string
-	containerName string
+	endpoint     string
+	key          string
+	dbName       string
+	users        string
+	measurements string
 }
 
 type OnePass struct {
@@ -37,6 +39,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type Entry struct {
 	Id        string `json:"id"`
+	UserId    string `json:"userId"`
 	Sys       int    `json:"sys"`
 	Dia       int    `json:"dia"`
 	Pulse     int    `json:"pulse"`
