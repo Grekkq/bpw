@@ -1,6 +1,11 @@
 version: "3.4"
 
 services:
+  ui:
+    image: bpw-ui
+    build: ./ui
+    ports:
+      - "8082:80"
 
   op-connect-api:
     image: 1password/connect-api:latest
