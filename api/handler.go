@@ -34,7 +34,15 @@ type Handler struct {
 }
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.H(h.Server, w, r)
+	w.Header().Add("Access-Control-Allow-Origin", "*") //TODO: change * to normal url https://developer.mozilla.org/en-US/docs/web/http/cors
+	w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		h.H(h.Server, w, r)
+	}
+
 }
 
 type Entry struct {
