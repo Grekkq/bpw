@@ -12,6 +12,12 @@ services:
       - 1password_vault_name
       - db_connection_string_name
 
+  ui:
+    image: bpw-ui
+    build: ./ui
+    ports:
+      - "8082:80"
+
   op-connect-api:
     image: 1password/connect-api:latest
     expose:
@@ -34,6 +40,7 @@ services:
 
 volumes:
   data:
+
 
 secrets:
   1password_http_address:
