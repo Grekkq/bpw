@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<head>
+<script src="js/script.js"></script>
+</head>
+
+<body>
+    <h1>Add new entry</h1>
+    <form method="post" id="test" action="http://192.168.0.104:8080/addEntry">
+        <label for="sys">Sys:</label><br>
+        <input type="number" id="sys" name="sys"><br>
+        <label for="dia">Dia:</label><br>
+        <input type="number" id="dia" name="dia"><br>
+        <label for="pulse">Pulse:</label><br>
+        <input type="number" id="pulse" name="pulse"><br>
+        <label for="userId">UserId:</label><br>
+        <input type="text" id="userId" name="userId"><br>
+
+        <input type="submit" value="Add Entry">
+    </form>
+</body>
