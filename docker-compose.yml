@@ -5,7 +5,7 @@ services:
     image: bpw-api
     build: ./api
     ports:
-      - "8080:8080"
+      - "3000:8080"
     secrets:
       - 1password_http_address
       - 1password_api_token
