@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/1Password/connect-sdk-go/connect"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
@@ -23,7 +24,12 @@ func getOnePassSecrets(secrets *OnePass) DatabaseDetails {
 	client := connect.NewClient(secrets.HttpAddress, secrets.ApiToken)
 	item, err := client.GetItemByTitle(secrets.DbConnectionDetailsEntry, secrets.VaultName)
 	if err != nil {
-		log.Panic("Failed to get data from 1Password.\n", err)
+		log.Print("Failed to get data from 1Password.\nRetrying in 5s", err)
+		time.Sleep(time.Second * 5)
+		item, err = client.GetItemByTitle(secrets.DbConnectionDetailsEntry, secrets.VaultName)
+		if err != nil {
+			log.Panic("Failed to get data from 1Password.\nCheck 1password server", err)
+		}
 	}
 
 	dbDetails := DatabaseDetails{}
