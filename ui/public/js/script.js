@@ -11,13 +11,19 @@ window.onload = function () {
         const url = form.action;
         const formDataObject = Object.fromEntries(formData.entries());
         if (formDataObject["sys"]) {
-            formDataObject["sys"] = parseInt(formDataObject["sys"]);
+            if (typeof formDataObject["sys"] == "string") {
+                formDataObject["sys"] = parseInt(formDataObject["sys"]);
+            }
         }
         if (formDataObject["dia"]) {
-            formDataObject["dia"] = parseInt(formDataObject["dia"]);
+            if (typeof formDataObject["dia"] == "string") {
+                formDataObject["dia"] = parseInt(formDataObject["dia"]);
+            }
         }
         if (formDataObject["pulse"]) {
-            formDataObject["pulse"] = parseInt(formDataObject["pulse"]);
+            if (typeof formDataObject["pulse"] == "string") {
+                formDataObject["pulse"] = parseInt(formDataObject["pulse"]);
+            }
         }
         const formDataJsonString = JSON.stringify(formDataObject);
         const fetchOptions = {
@@ -30,8 +36,20 @@ window.onload = function () {
         const res = await fetch(url, fetchOptions);
         if (!res.ok) {
             const error = await res.text();
-            throw new Error(error);
+            displaySnackbar(`Cannot add new entry\n${error}`, "red");
+            return;
         }
-        return res.json();
+        displaySnackbar(`Entry ${formDataJsonString} added succesfully`, "green");
+        form.reset();
     });
 };
+function displaySnackbar(message, backgroundColor) {
+    const x = document.getElementById("snackbar");
+    if (!(x instanceof HTMLDivElement)) {
+        throw new Error("Missing snackbar div");
+    }
+    x.textContent = message;
+    x.style.backgroundColor = backgroundColor;
+    x.className = "show";
+    setTimeout(function () { x.className = x.className.replace("show", ""); }, 5000);
+}
