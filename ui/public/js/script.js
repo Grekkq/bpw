@@ -36,20 +36,28 @@ window.onload = function () {
         const res = await fetch(url, fetchOptions);
         if (!res.ok) {
             const error = await res.text();
-            displaySnackbar(`Cannot add new entry\n${error}`, "red");
+            displayToast(`Cannot add new entry\n${error}`, "red");
             return;
         }
-        displaySnackbar(`Entry ${formDataJsonString} added succesfully`, "green");
+        displayToast(`Entry ${formDataJsonString} added succesfully`, "green");
         form.reset();
     });
 };
-function displaySnackbar(message, backgroundColor) {
-    const x = document.getElementById("snackbar");
-    if (!(x instanceof HTMLDivElement)) {
-        throw new Error("Missing snackbar div");
+function displayToast(message, backgroundColor, visibleFor = 3) {
+    const toast = document.getElementById("toast");
+    if (!(toast instanceof HTMLDivElement)) {
+        throw new Error("Missing toast div");
     }
-    x.textContent = message;
-    x.style.backgroundColor = backgroundColor;
-    x.className = "show";
-    setTimeout(function () { x.className = x.className.replace("show", ""); }, 5000);
+    toast.textContent = message;
+    toast.style.backgroundColor = backgroundColor;
+    animate(toast, visibleFor);
+}
+function animate(toast, visibleFor) {
+    toast.className = "fadeIn";
+    setTimeout(function () {
+        toast.className = toast.className.replace("fadeIn", "fadeOut");
+        setTimeout(() => {
+            toast.className = toast.className.replace("fadeOut", "");
+        }, 450);
+    }, visibleFor * 1000);
 }
