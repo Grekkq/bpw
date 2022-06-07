@@ -1,0 +1,27 @@
+:root {
+    --light-color: #fff;
+    --dark-color: #111;
+    --success-color: #009944;
+    --error-color: #cf000f;
+    --primary-color: #35cbdf;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        
+        --background-color: var(--dark-color);
+        --text-color: var(--light-color);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-color: var(--light-color);
+        --text-color: var(--dark-color);
+    }
+}
+
+:root {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}

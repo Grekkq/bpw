@@ -36,28 +36,10 @@ window.onload = function () {
         const res = await fetch(url, fetchOptions);
         if (!res.ok) {
             const error = await res.text();
-            displayToast(`Cannot add new entry\n${error}`, "red");
+            errorToast(`Cannot add new entry\n${error}`);
             return;
         }
-        displayToast(`Entry ${formDataJsonString} added succesfully`, "green");
+        successToast(`Entry ${formDataJsonString} added succesfully`);
         form.reset();
     });
 };
-function displayToast(message, backgroundColor, visibleFor = 3) {
-    const toast = document.getElementById("toast");
-    if (!(toast instanceof HTMLDivElement)) {
-        throw new Error("Missing toast div");
-    }
-    toast.textContent = message;
-    toast.style.backgroundColor = backgroundColor;
-    animate(toast, visibleFor);
-}
-function animate(toast, visibleFor) {
-    toast.className = "fadeIn";
-    setTimeout(function () {
-        toast.className = toast.className.replace("fadeIn", "fadeOut");
-        setTimeout(() => {
-            toast.className = toast.className.replace("fadeOut", "");
-        }, 450);
-    }, visibleFor * 1000);
-}
