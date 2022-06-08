@@ -1,11 +1,12 @@
 version: "3.4"
 
 services:
-  goapp:
+  api:
     image: bpw-api
     build: ./api
     ports:
       - "3000:8080"
+    hostname: api
     secrets:
       - 1password_http_address
       - 1password_api_token
