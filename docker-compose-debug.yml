@@ -5,7 +5,11 @@ services:
     image: bpw-ui
     build: ./ui
     ports:
-      - "8082:80"
+      - "80:80"
+      - "443:443"
+    secrets:
+      - ssl_certificate
+      - ssl_certificate_key
 
   op-connect-api:
     image: 1password/connect-api:latest
@@ -25,3 +29,9 @@ services:
 
 volumes:
   data:
+
+secrets:
+  ssl_certificate:
+    file: /etc/letsencrypt/live/pi.infop.atthost24.pl/fullchain.pem
+  ssl_certificate_key:
+    file: /etc/letsencrypt/live/pi.infop.atthost24.pl/privkey.pem
