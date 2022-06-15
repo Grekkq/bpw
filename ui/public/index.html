@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <script type="module" src="js/main.js"></script>
+    <script src="js/toast.js"></script>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/toast.css">
+</head>
+
+<body>
+    <div id="toast">Toast</div>
+    <h1>Welcome user</h1>
+    <div class="content">
+        <add-entry></add-entry>
+        <list-entries></list-entries>
+    </div>
+
+
+
+    <template id="list-entries">
+        <h1>List entries</h1>
+        <label>UserId:</label>
+        <input type="text" id="userId">
+        <button id="loadEntries">Load Data</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time
+                    <th>Sys
+                    <th>Dia
+                    <th>Pulse
+                    <th>Comment
+            <tbody>
+                <template id="row">
+                    <tr>
+                        <td>
+                        <td>
+                        <td>
+                        <td>
+                        <td>
+                </template>
+        </table>
+    </template>
+
+
+    <template id="add-entry">
+        <h1>Add new entry</h1>
+        <form method="post" id="addEntryForm">
+            <label for="sys">Sys:</label><br>
+            <input type="number" id="sys" name="sys"><br>
+            <label for="dia">Dia:</label><br>
+            <input type="number" id="dia" name="dia"><br>
+            <label for="pulse">Pulse:</label><br>
+            <input type="number" id="pulse" name="pulse"><br>
+            <label for="userId">UserId:</label><br>
+            <input type="text" id="userId" name="userId"><br>
+
+            <input type="submit" value="Add Entry">
+        </form>
+    </template>
+</body>
+
+</html>

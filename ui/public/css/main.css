@@ -1,6 +1,6 @@
 :root {
     --light-color: #fff;
-    --dark-color: #111;
+    --dark-color: #222;
     --success-color: #009944;
     --error-color: #cf000f;
     --primary-color: #35cbdf;
@@ -24,4 +24,18 @@
 :root {
     background-color: var(--background-color);
     color: var(--text-color);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+div.content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3em;
 }
